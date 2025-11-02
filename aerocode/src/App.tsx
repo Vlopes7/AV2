@@ -1,34 +1,56 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import './App.css'
+import './App.css';
 
+import { AuthProvider, useAuth } from './AuthContext';
+import Login from './Login';
 import DashboardLayout from './DashboardLayout';
-import WelcomeDashboard from './WelcomeDashboard';
 import Employees from './Employees';
-import Aircrafts from './Aircrafts';
+import { Aircrafts } from './Aircrafts';
 import NotImplemented from './NotImplemented';
 import Pecas from './Pecas';
 import Etapas from './Etapas';
 import Testes from './Testes';
 import Relatorios from './Relatorios';
+import type { JSX } from 'react';
+
+function ProtectedRoute({ children }: { children: JSX.Element }) {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/" replace />;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="aeronaves" replace />} />
+        <Route path="aeronaves" element={<Aircrafts />} />
+        <Route path="pecas" element={<Pecas />} />
+        <Route path="etapas" element={<Etapas />} />
+        <Route path="testes" element={<Testes />} />
+        <Route path="relatorios" element={<Relatorios />} />
+        <Route path="funcionarios" element={<Employees />} />
+        <Route path="*" element={<NotImplemented />} />
+      </Route>
+    </Routes>
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" />} />
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<WelcomeDashboard />} />
-          <Route path="aeronaves" element={<Aircrafts />} />
-          <Route path="pecas" element={<Pecas />} />
-          <Route path="etapas" element={<Etapas />} />
-          <Route path="testes" element={<Testes />} />
-          <Route path="relatorios" element={<Relatorios />} />
-          <Route path="funcionarios" element={<Employees />} />
-          <Route path="*" element={<NotImplemented />} />
-        </Route>
-      </Routes>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </BrowserRouter>
-  )
+  );
 }
 
 export default App

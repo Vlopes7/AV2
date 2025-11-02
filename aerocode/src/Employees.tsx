@@ -26,12 +26,18 @@ function Employees() {
       id: Math.floor(Math.random() * 1000),
     };
     setFuncionarios(prev => [...prev, newEntry]);
-    setNewEmployee(initialEmployeeState); // Limpa o formulário
+    setNewEmployee(initialEmployeeState);
     setIsModalOpen(false);
   };
 
+  const handleDelete = (id: number) => {
+    if (window.confirm("Tem certeza que deseja excluir este funcionário?")) {
+      setFuncionarios(funcionarios.filter((f) => f.id !== id));
+    }
+  };
+
   const openModal = () => {
-    setNewEmployee(initialEmployeeState); // Garante que o formulário esteja limpo ao abrir
+    setNewEmployee(initialEmployeeState);
     setIsModalOpen(true);
   };
 
@@ -63,15 +69,15 @@ function Employees() {
             <label htmlFor="senha">Senha</label>
             <input type="password" id="senha" name="senha" onChange={handleInputChange} required />
           </div>
-          <button type="submit">Salvar</button>
+          <button type="submit" className="btn-primary">Salvar</button>
         </form>
       </Modal>
 
       <div className="card">
         <div className="table-actions">
-            <button onClick={openModal}>Cadastrar Novo Funcionário</button>
+            <button className="btn-primary" onClick={openModal}>Cadastrar Novo Funcionário</button>
         </div>
-        <table>
+        <table className="data-table">
           <thead>
             <tr>
               <th>ID</th>
@@ -79,6 +85,7 @@ function Employees() {
               <th>CPF</th>
               <th>Cargo</th>
               <th>Login</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -89,6 +96,11 @@ function Employees() {
                 <td>{f.cpf}</td>
                 <td>{f.cargo}</td>
                 <td>{f.login}</td>
+                <td className="actions-cell">
+                  <button className="btn-danger" onClick={() => handleDelete(f.id)}>
+                    Excluir
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

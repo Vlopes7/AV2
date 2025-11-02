@@ -5,7 +5,7 @@ export enum Hierarquia {
 }
 
 export enum tipoAeronave {
-  Comercial = 'Comercial',
+  Comercial = 'Comercial', 
   Militar = 'Militar',
 }
 

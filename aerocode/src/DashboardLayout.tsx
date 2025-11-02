@@ -8,7 +8,6 @@ function DashboardLayout() {
         <h2 className="sidebar-title">Aerocode</h2>
         <nav>
           <ul>
-            <li><NavLink to="/dashboard" end>Início</NavLink></li>
             <li><NavLink to="/dashboard/aeronaves">Aeronaves</NavLink></li>
             <li><NavLink to="/dashboard/pecas">Peças</NavLink></li>
             <li><NavLink to="/dashboard/etapas">Etapas de Produção</NavLink></li>

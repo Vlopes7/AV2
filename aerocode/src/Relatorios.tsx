@@ -37,7 +37,7 @@ function Relatorios() {
             <label htmlFor="autor">Autor do Relatório</label>
             <input type="text" id="autor" name="autor" defaultValue="Usuário Padrão" required />
           </div>
-          <button type="submit">Gerar Relatório</button>
+          <button type="submit" className="btn-primary">Gerar Relatório</button>
         </form>
       </div>
 

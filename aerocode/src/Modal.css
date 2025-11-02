@@ -84,6 +84,13 @@
   background-color: #16a085;
 }
 
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
 @keyframes slide-down {
   from {
     transform: translateY(-30px);

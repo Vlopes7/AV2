@@ -1,99 +1,178 @@
-import { useState } from 'react';
-import { mockAeronaves, tipoAeronave, type Aeronave } from './mockData';
-import Modal from './Modal';
+import { useState, type ChangeEvent, type FormEvent } from "react";
+import Modal from "./Modal";
 
-function Aircrafts() {
+import {
+  mockAeronaves,
+  tipoAeronave,
+  type Aeronave,
+} from "./mockData";
+
+const estadoInicialForm: Omit<Aeronave, 'codigo'> = {
+  modelo: "",
+  tipo: tipoAeronave.Comercial,
+  capacidade: 0,
+  autonomia: 0,
+};
+
+export function Aircrafts() {
   const [aeronaves, setAeronaves] = useState<Aeronave[]>(mockAeronaves);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const initialAircraftState: Omit<Aeronave, 'codigo'> = {
-    modelo: '',
-    tipo: tipoAeronave.Comercial,
-    capacidade: 0,
-    autonomia: 0,
-  };
-  const [newAircraft, setNewAircraft] = useState(initialAircraftState);
+  const [novaAeronave, setNovaAeronave] = useState(estadoInicialForm);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setNewAircraft(prev => ({
-      ...prev,
-      [name]: name === 'capacidade' || name === 'autonomia' ? parseInt(value, 10) : value,
-    }));
+    setNovaAeronave({
+      ...novaAeronave,
+      [name]:
+        name === "capacidade" || name === "autonomia"
+          ? Number(value)
+          : value,
+    });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const newEntry: Aeronave = {
-      ...newAircraft,
-      codigo: Math.floor(Math.random() * 1000) + 100, // Gera um código aleatório
+      ...novaAeronave,
+      codigo: Math.floor(Math.random() * 1000) + 100, // Código aleatório para mock
     };
-    setAeronaves(prev => [...prev, newEntry]);
-    setNewAircraft(initialAircraftState); // Limpa o formulário
+    setAeronaves([...aeronaves, newEntry]);
+    
     setIsModalOpen(false);
+    setNovaAeronave(estadoInicialForm);
   };
 
-  const openModal = () => {
-    setNewAircraft(initialAircraftState); // Garante que o formulário esteja limpo ao abrir
-    setIsModalOpen(true);
+  const handleDelete = (codigo: number) => {
+    if (window.confirm("Tem certeza que deseja excluir esta aeronave?")) {
+      setAeronaves(aeronaves.filter((a) => a.codigo !== codigo));
+    }
+  };
+  
+  const handleEdit = (aeronave: Aeronave) => {
+    console.log("Editar:", aeronave);
+    alert("Funcionalidade de Editar ainda não implementada.");
   };
 
   return (
-    <div>
+    <div className="main-content">
       <h1>Gerenciamento de Aeronaves</h1>
 
-      <Modal title="Cadastrar Nova Aeronave" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="modelo">Modelo</label>
-            <input type="text" id="modelo" name="modelo" onChange={handleInputChange} required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="tipo">Tipo</label>
-            <select id="tipo" name="tipo" value={newAircraft.tipo} onChange={handleInputChange}>
-              {Object.values(tipoAeronave).map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="capacidade">Capacidade</label>
-            <input type="number" id="capacidade" name="capacidade" onChange={handleInputChange} required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="autonomia">Autonomia/Alcance (km)</label>
-            <input type="number" id="autonomia" name="autonomia" onChange={handleInputChange} required />
-          </div>
-          <button type="submit">Salvar</button>
-        </form>
-      </Modal>
+      <div className="table-actions">
+        <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
+          Cadastrar Aeronave
+        </button>
+      </div>
 
       <div className="card">
-        <div className="table-actions">
-            <button onClick={openModal}>Cadastrar Nova Aeronave</button>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Modelo</th>
-              <th>Tipo</th>
-              <th>Capacidade</th>
-              <th>Alcance (km)</th>
+        <table className="data-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Modelo</th>
+            <th>Tipo</th>
+            <th>Capacidade</th>
+            <th>Autonomia (km)</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {aeronaves.map((aeronave) => (
+            <tr key={aeronave.codigo}>
+              <td>{aeronave.codigo}</td>
+              <td>{aeronave.modelo}</td>
+              <td>{aeronave.tipo}</td>
+              <td>{aeronave.capacidade}</td>
+              <td>{aeronave.autonomia} km</td>
+              <td className="actions-cell">
+                <button
+                  className="btn-secondary"
+                  onClick={() => handleEdit(aeronave)}
+                >
+                  Editar
+                </button>
+                <button
+                  className="btn-danger"
+                  onClick={() => handleDelete(aeronave.codigo)}
+                >
+                  Excluir
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {aeronaves.map((a) => (
-              <tr key={a.codigo}>
-                <td>{a.codigo}</td>
-                <td>{a.modelo}</td>
-                <td>{a.tipo}</td>
-                <td>{a.capacidade} passageiros</td>
-                <td>{a.autonomia}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          ))}
+        </tbody>
+      </table>
       </div>
+
+      <Modal title="Cadastrar Nova Aeronave" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <form className="modal-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="modelo">Modelo</label>
+            <input
+              type="text"
+              id="modelo"
+              name="modelo"
+              value={novaAeronave.modelo}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="tipo">Tipo de Aeronave</label>
+            <select
+              id="tipo"
+              name="tipo"
+              value={novaAeronave.tipo}
+              onChange={handleInputChange}
+            >
+              {Object.values(tipoAeronave).map((tipo) => (
+                <option key={tipo} value={tipo}>
+                  {tipo}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="capacidade">Capacidade (Passageiros)</label>
+            <input
+              type="number"
+              id="capacidade"
+              name="capacidade"
+              value={novaAeronave.capacidade}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="autonomia">Autonomia (km)</label>
+            <input
+              type="number"
+              id="autonomia"
+              name="autonomia"
+              value={novaAeronave.autonomia}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+
+          <div className="form-actions">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Cancelar
+            </button>
+            <button type="submit" className="btn-primary">
+              Salvar
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
-
-export default Aircrafts;

@@ -28,12 +28,18 @@ function Etapas() {
       status: producao.Pendente,
     };
     setEtapas(prev => [...prev, newEntry]);
-    setNewEtapa(initialEtapaState); // Limpa o formulário
+    setNewEtapa(initialEtapaState);
     setIsModalOpen(false);
   };
 
+  const handleDelete = (id: number) => {
+    if (window.confirm("Tem certeza que deseja excluir esta etapa?")) {
+      setEtapas(etapas.filter((e) => e.id !== id));
+    }
+  };
+
   const openModal = () => {
-    setNewEtapa(initialEtapaState); // Garante que o formulário esteja limpo ao abrir
+    setNewEtapa(initialEtapaState);
     setIsModalOpen(true);
   };
 
@@ -61,15 +67,15 @@ function Etapas() {
             <label htmlFor="funcionarios">Funcionários Designados (separados por vírgula)</label>
             <input type="text" id="funcionarios" name="funcionarios" placeholder="Ex: João Silva, Maria Souza" />
           </div>
-          <button type="submit">Salvar</button>
+          <button type="submit" className="btn-primary">Salvar</button>
         </form>
       </Modal>
 
       <div className="card">
         <div className="table-actions">
-            <button onClick={openModal}>Criar Nova Etapa</button>
+            <button className="btn-primary" onClick={openModal}>Criar Nova Etapa</button>
         </div>
-        <table>
+        <table className="data-table">
           <thead>
             <tr>
               <th>ID</th>
@@ -77,6 +83,7 @@ function Etapas() {
               <th>Data Prevista</th>
               <th>Status</th>
               <th>Aeronave ID</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -87,6 +94,11 @@ function Etapas() {
                 <td>{etapa.dataPrevista}</td>
                 <td>{etapa.status}</td>
                 <td>{etapa.aeronaveId}</td>
+                <td className="actions-cell">
+                  <button className="btn-danger" onClick={() => handleDelete(etapa.id)}>
+                    Excluir
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

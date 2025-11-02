@@ -33,7 +33,7 @@ function Testes() {
                 <option value="Reprovado">Reprovado</option>
             </select>
           </div>
-          <button type="submit">Registrar Teste</button>
+          <button type="submit" className="btn-primary">Registrar Teste</button>
         </form>
       </div>
     </div>

@@ -16,13 +16,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<Funcionario | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('aerocode_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
   const login = (email: string, pass: string): boolean => {
     const foundUser = mockFuncionarios.find(
       (f) => f.login === email && f.senha === pass
@@ -30,7 +23,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (foundUser) {
       setUser(foundUser);
-      localStorage.setItem('aerocode_user', JSON.stringify(foundUser));
       return true;
     }
     return false;
@@ -38,7 +30,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('aerocode_user');
     navigate('/');
   };
 

@@ -29,12 +29,18 @@ function Pecas() {
       id: Math.floor(Math.random() * 10000) + 100,
     };
     setPecas(prev => [...prev, newEntry]);
-    setNewPeca(initialPecaState); // Limpa o formulário
+    setNewPeca(initialPecaState);
     setIsModalOpen(false);
   };
 
+  const handleDelete = (id: number) => {
+    if (window.confirm("Tem certeza que deseja excluir esta peça?")) {
+      setPecas(pecas.filter((p) => p.id !== id));
+    }
+  };
+
   const openModal = () => {
-    setNewPeca(initialPecaState); // Garante que o formulário esteja limpo ao abrir
+    setNewPeca(initialPecaState);
     setIsModalOpen(true);
   };
 
@@ -64,15 +70,15 @@ function Pecas() {
               {mockAeronaves.map(a => <option key={a.codigo} value={a.codigo}>{a.modelo} ({a.codigo})</option>)}
             </select>
           </div>
-          <button type="submit">Salvar</button>
+          <button type="submit" className="btn-primary">Salvar</button>
         </form>
       </Modal>
 
       <div className="card">
         <div className="table-actions">
-            <button onClick={openModal}>Cadastrar Nova Peça</button>
+            <button className="btn-primary" onClick={openModal}>Cadastrar Nova Peça</button>
         </div>
-        <table>
+        <table className="data-table">
           <thead>
             <tr>
               <th>ID</th>
@@ -81,6 +87,7 @@ function Pecas() {
               <th>Fornecedor</th>
               <th>Status</th>
               <th>Aeronave ID</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -92,6 +99,11 @@ function Pecas() {
                 <td>{p.fornecedor}</td>
                 <td>{p.status}</td>
                 <td>{p.aeronaveId}</td>
+                <td className="actions-cell">
+                  <button className="btn-danger" onClick={() => handleDelete(p.id)}>
+                    Excluir
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
