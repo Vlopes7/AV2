@@ -1,0 +1,9 @@
+#root {
+  /* Estilos globais podem ir aqui, mas o layout principal é controlado pelo Dashboard.css */
+}
+
+.card {
+  padding: 2em;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
