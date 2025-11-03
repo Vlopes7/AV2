@@ -1,8 +1,14 @@
 import { useState } from 'react';
-import { mockAeronaves } from './mockData';
+import { mockAeronaves, type Peca, type Etapa, producao, statusPeca } from './mockData';
 
-function Relatorios() {
+interface RelatoriosProps {
+  pecas: Peca[];
+  etapas: Etapa[];
+}
+
+function Relatorios({ pecas, etapas }: RelatoriosProps) {
   const [report, setReport] = useState<string>('');
+  const [selectedAeronaveId, setSelectedAeronaveId] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -13,12 +19,23 @@ function Relatorios() {
 
     if (!aeronave) return;
 
-    const random = Math.random();
-    if (random > 0.5) {
-      setReport(`--- RELATÓRIO DA AERONAVE ${aeronave.modelo} (${aeronave.codigo}) ---\n\nSituação: Aeronave pronta para entrega.\nTodos os testes aprovados.\nTodas as etapas concluídas.\n\nAutor: ${autor}`);
+    const etapasPendentes = etapas.filter(et => et.aeronaveId === aeronaveId && et.status !== producao.Concluido);
+    const pecasNaoProntas = pecas.filter(p => p.aeronaveId === aeronaveId && p.status !== statusPeca.Pronta);
+
+    let reportContent = `--- RELATÓRIO DA AERONAVE ${aeronave.modelo} (${aeronave.codigo}) ---\n\n`;
+
+    if (etapasPendentes.length === 0 && pecasNaoProntas.length === 0) {
+      reportContent += `Situação: Aeronave pronta para entrega.\nTodos os testes aprovados.\nTodas as etapas concluídas.\n\nAutor: ${autor}`;
     } else {
-      setReport(`ERRO: A aeronave ${aeronave.modelo} (${aeronave.codigo}) não pode ser liberada.\n\nMotivos:\n- Etapas não concluídas: Instalação de aviônicos\n- Peças não prontas: Assentos da classe econômica`);
+      reportContent += `ERRO: A aeronave ${aeronave.modelo} (${aeronave.codigo}) não pode ser liberada.\n\nMotivos:\n`;
+      if (etapasPendentes.length > 0) {
+        reportContent += `- Etapas não concluídas: ${etapasPendentes.map(e => e.nome).join(', ')}\n`;
+      }
+      if (pecasNaoProntas.length > 0) {
+        reportContent += `- Peças não prontas: ${pecasNaoProntas.map(p => p.nome).join(', ')}\n`;
+      }
     }
+    setReport(reportContent);
   };
 
   return (
@@ -28,7 +45,7 @@ function Relatorios() {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="aeronaveId">Selecione a Aeronave</label>
-            <select id="aeronaveId" name="aeronaveId" required>
+            <select id="aeronaveId" name="aeronaveId" value={selectedAeronaveId} onChange={e => setSelectedAeronaveId(e.target.value)} required>
               <option value="">-- Selecione --</option>
               {mockAeronaves.map(a => <option key={a.codigo} value={a.codigo}>{a.modelo} ({a.codigo})</option>)}
             </select>

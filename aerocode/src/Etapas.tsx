@@ -5,16 +5,19 @@ import Modal from './Modal';
 function Etapas() {
   const [etapas, setEtapas] = useState<Etapa[]>(mockEtapas);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const initialEtapaState: Omit<Etapa, 'id' | 'status'> = {
+  const [editingEtapa, setEditingEtapa] = useState<Etapa | null>(null);
+  const initialEtapaState: Etapa = {
+    id: 0,
     nome: '',
     dataPrevista: '',
+    status: producao.Pendente,
     aeronaveId: mockAeronaves[0]?.codigo || 0,
   };
-  const [newEtapa, setNewEtapa] = useState(initialEtapaState);
+  const [currentEtapa, setCurrentEtapa] = useState<Etapa>(initialEtapaState);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setNewEtapa(prev => ({
+    setCurrentEtapa(prev => ({
       ...prev,
       [name]: name === 'aeronaveId' ? parseInt(value, 10) : value,
     }));
@@ -22,14 +25,19 @@ function Etapas() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newEntry: Etapa = {
-      ...newEtapa,
-      id: Math.floor(Math.random() * 10000) + 100,
-      status: producao.Pendente,
-    };
-    setEtapas(prev => [...prev, newEntry]);
-    setNewEtapa(initialEtapaState);
+    if (editingEtapa) {
+      setEtapas(etapas.map(e => e.id === editingEtapa.id ? currentEtapa : e));
+    } else {
+      const newEntry: Etapa = {
+        ...currentEtapa,
+        id: Math.floor(Math.random() * 10000) + 100,
+        status: producao.Pendente,
+      };
+      setEtapas(prev => [...prev, newEntry]);
+    }
     setIsModalOpen(false);
+    setEditingEtapa(null);
+    setCurrentEtapa(initialEtapaState);
   };
 
   const handleDelete = (id: number) => {
@@ -38,28 +46,47 @@ function Etapas() {
     }
   };
 
+  const handleStatusChange = (id: number, newStatus: producao) => {
+    setEtapas(etapas.map(e =>
+      e.id === id ? { ...e, status: newStatus } : e
+    ));
+  };
+
   const openModal = () => {
-    setNewEtapa(initialEtapaState);
+    setEditingEtapa(null);
+    setCurrentEtapa(initialEtapaState);
     setIsModalOpen(true);
+  };
+
+  const handleEdit = (etapa: Etapa) => {
+    setEditingEtapa(etapa);
+    setCurrentEtapa(etapa);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingEtapa(null);
+    setCurrentEtapa(initialEtapaState);
   };
 
   return (
     <div>
       <h1>Etapas de Produção</h1>
 
-      <Modal title="Criar Nova Etapa" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      <Modal title={editingEtapa ? "Editar Etapa" : "Criar Nova Etapa"} isOpen={isModalOpen} onClose={closeModal}>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="nome">Nome da Etapa</label>
-            <input type="text" id="nome" name="nome" onChange={handleInputChange} required />
+            <input type="text" id="nome" name="nome" value={currentEtapa.nome} onChange={handleInputChange} required />
           </div>
           <div className="form-group">
             <label htmlFor="dataPrevista">Data de Conclusão Prevista</label>
-            <input type="date" id="dataPrevista" name="dataPrevista" onChange={handleInputChange} required />
+            <input type="date" id="dataPrevista" name="dataPrevista" value={currentEtapa.dataPrevista} onChange={handleInputChange} required />
           </div>
           <div className="form-group">
             <label htmlFor="aeronaveId">Aeronave</label>
-            <select id="aeronaveId" name="aeronaveId" value={newEtapa.aeronaveId} onChange={handleInputChange}>
+            <select id="aeronaveId" name="aeronaveId" value={currentEtapa.aeronaveId} onChange={handleInputChange}>
               {mockAeronaves.map(a => <option key={a.codigo} value={a.codigo}>{a.modelo} ({a.codigo})</option>)}
             </select>
           </div>
@@ -92,9 +119,20 @@ function Etapas() {
                 <td>{etapa.id}</td>
                 <td>{etapa.nome}</td>
                 <td>{etapa.dataPrevista}</td>
-                <td>{etapa.status}</td>
+                <td>
+                  <select
+                    value={etapa.status}
+                    onChange={(e) => handleStatusChange(etapa.id, e.target.value as producao)}
+                    disabled={etapa.status === producao.Concluido}
+                  >
+                    {Object.values(producao).map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </td>
                 <td>{etapa.aeronaveId}</td>
                 <td className="actions-cell">
+                  <button className="btn-secondary" onClick={() => handleEdit(etapa)}>Editar</button>
                   <button className="btn-danger" onClick={() => handleDelete(etapa.id)}>
                     Excluir
                   </button>

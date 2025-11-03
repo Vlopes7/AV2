@@ -5,18 +5,21 @@ import Modal from './Modal';
 function Pecas() {
   const [pecas, setPecas] = useState<Peca[]>(mockPecas);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const initialPecaState: Omit<Peca, 'id'> = {
+  const [editingPeca, setEditingPeca] = useState<Peca | null>(null);
+
+  const initialPecaState: Peca = {
+    id: 0,
     nome: '',
     tipo: tipoPeca.Nacional,
     fornecedor: '',
     status: statusPeca.Producao,
     aeronaveId: mockAeronaves[0]?.codigo || 0,
   };
-  const [newPeca, setNewPeca] = useState(initialPecaState);
+  const [currentPeca, setCurrentPeca] = useState<Peca>(initialPecaState);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setNewPeca(prev => ({
+    setCurrentPeca(prev => ({
       ...prev,
       [name]: name === 'aeronaveId' ? parseInt(value, 10) : value,
     }));
@@ -24,13 +27,19 @@ function Pecas() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newEntry: Peca = {
-      ...newPeca,
-      id: Math.floor(Math.random() * 10000) + 100,
-    };
-    setPecas(prev => [...prev, newEntry]);
-    setNewPeca(initialPecaState);
+    if (editingPeca) {
+      setPecas(pecas.map(p => p.id === editingPeca.id ? currentPeca : p));
+    } else {
+      const newEntry: Peca = {
+        ...currentPeca,
+        id: Math.floor(Math.random() * 10000) + 100,
+      };
+      setPecas(prev => [...prev, newEntry]);
+    }
+
     setIsModalOpen(false);
+    setEditingPeca(null);
+    setCurrentPeca(initialPecaState);
   };
 
   const handleDelete = (id: number) => {
@@ -39,16 +48,35 @@ function Pecas() {
     }
   };
 
+  const handleStatusChange = (id: number, newStatus: statusPeca) => {
+    setPecas(pecas.map(p =>
+      p.id === id ? { ...p, status: newStatus } : p
+    ));
+  };
+
   const openModal = () => {
-    setNewPeca(initialPecaState);
+    setEditingPeca(null);
+    setCurrentPeca(initialPecaState);
     setIsModalOpen(true);
   };
+
+  const handleEdit = (peca: Peca) => {
+    setEditingPeca(peca);
+    setCurrentPeca(peca);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingPeca(null);
+    setCurrentPeca(initialPecaState);
+  }
 
   return (
     <div>
       <h1>Gerenciamento de Peças</h1>
 
-      <Modal title="Cadastrar Nova Peça" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      <Modal title={editingPeca ? "Editar Peça" : "Cadastrar Nova Peça"} isOpen={isModalOpen} onClose={closeModal}>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="nome">Nome da Peça</label>
@@ -56,17 +84,17 @@ function Pecas() {
           </div>
           <div className="form-group">
             <label htmlFor="tipo">Tipo</label>
-            <select id="tipo" name="tipo" value={newPeca.tipo} onChange={handleInputChange}>
+            <select id="tipo" name="tipo" value={currentPeca.tipo} onChange={handleInputChange}>
               {Object.values(tipoPeca).map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label htmlFor="fornecedor">Fornecedor</label>
-            <input type="text" id="fornecedor" name="fornecedor" onChange={handleInputChange} required />
+            <input type="text" id="fornecedor" name="fornecedor" value={currentPeca.fornecedor} onChange={handleInputChange} required />
           </div>
           <div className="form-group">
             <label htmlFor="aeronaveId">Aeronave Associada</label>
-            <select id="aeronaveId" name="aeronaveId" value={newPeca.aeronaveId} onChange={handleInputChange}>
+            <select id="aeronaveId" name="aeronaveId" value={currentPeca.aeronaveId} onChange={handleInputChange}>
               {mockAeronaves.map(a => <option key={a.codigo} value={a.codigo}>{a.modelo} ({a.codigo})</option>)}
             </select>
           </div>
@@ -97,9 +125,20 @@ function Pecas() {
                 <td>{p.nome}</td>
                 <td>{p.tipo}</td>
                 <td>{p.fornecedor}</td>
-                <td>{p.status}</td>
+                <td>
+                  <select
+                    value={p.status}
+                    onChange={(e) => handleStatusChange(p.id, e.target.value as statusPeca)}
+                    disabled={p.status === statusPeca.Pronta}
+                  >
+                    {Object.values(statusPeca).map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </td>
                 <td>{p.aeronaveId}</td>
                 <td className="actions-cell">
+                  <button className="btn-secondary" onClick={() => handleEdit(p)}>Editar</button>
                   <button className="btn-danger" onClick={() => handleDelete(p.id)}>
                     Excluir
                   </button>
