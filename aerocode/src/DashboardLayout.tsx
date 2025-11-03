@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import './css/Dashboard.css';
-import { mockPecas, mockEtapas, type Peca, type Etapa } from './mockData';
+import { mockPecas, mockEtapas, mockAeronaves, type Peca, type Etapa, type Aeronave } from './mockData';
 
 function DashboardLayout() {
   const [pecas, setPecas] = useState<Peca[]>(mockPecas);
   const [etapas, setEtapas] = useState<Etapa[]>(mockEtapas);
+  const [aeronaves, setAeronaves] = useState<Aeronave[]>(mockAeronaves);
 
   return (
     <div className="dashboard-container">
@@ -23,7 +24,7 @@ function DashboardLayout() {
         </nav>
       </aside>
       <main className="main-content">
-        <Outlet context={{ pecas, setPecas, etapas, setEtapas }} />
+        <Outlet context={{ pecas, setPecas, etapas, setEtapas, aeronaves, setAeronaves }} />
       </main>
     </div>
   );

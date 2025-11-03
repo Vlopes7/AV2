@@ -1,9 +1,18 @@
 import { useState } from 'react';
-import { mockEtapas, mockAeronaves, producao, type Etapa } from './mockData';
+import { useOutletContext } from 'react-router-dom';
+import { producao, type Etapa, type Aeronave, type Peca } from './mockData';
 import Modal from './Modal';
 
+interface OutletContextType {
+  etapas: Etapa[];
+  setEtapas: React.Dispatch<React.SetStateAction<Etapa[]>>;
+  aeronaves: Aeronave[];
+  pecas: Peca[];
+  setPecas: React.Dispatch<React.SetStateAction<Peca[]>>;
+}
+
 function Etapas() {
-  const [etapas, setEtapas] = useState<Etapa[]>(mockEtapas);
+  const { etapas, setEtapas, aeronaves } = useOutletContext<OutletContextType>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEtapa, setEditingEtapa] = useState<Etapa | null>(null);
   const initialEtapaState: Etapa = {
@@ -11,7 +20,7 @@ function Etapas() {
     nome: '',
     dataPrevista: '',
     status: producao.Pendente,
-    aeronaveId: mockAeronaves[0]?.codigo || 0,
+    aeronaveId: aeronaves[0]?.codigo || 0,
   };
   const [currentEtapa, setCurrentEtapa] = useState<Etapa>(initialEtapaState);
 
@@ -86,8 +95,8 @@ function Etapas() {
           </div>
           <div className="form-group">
             <label htmlFor="aeronaveId">Aeronave</label>
-            <select id="aeronaveId" name="aeronaveId" value={currentEtapa.aeronaveId} onChange={handleInputChange}>
-              {mockAeronaves.map(a => <option key={a.codigo} value={a.codigo}>{a.modelo} ({a.codigo})</option>)}
+            <select id="aeronaveId" name="aeronaveId" value={currentEtapa.aeronaveId} onChange={handleInputChange} disabled={aeronaves.length === 0}>
+              {aeronaves.map(a => <option key={a.codigo} value={a.codigo}>{a.modelo} ({a.codigo})</option>)}
             </select>
           </div>
           <div className="form-group">

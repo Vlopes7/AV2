@@ -1,6 +1,12 @@
-import { mockAeronaves, tipoTeste } from './mockData';
+import { useOutletContext } from 'react-router-dom';
+import { tipoTeste, type Aeronave } from './mockData';
+
+interface OutletContextType {
+  aeronaves: Aeronave[];
+}
 
 function Testes() {
+  const { aeronaves } = useOutletContext<OutletContextType>();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +22,7 @@ function Testes() {
             <label htmlFor="aeronaveId">Selecione a Aeronave</label>
             <select id="aeronaveId" name="aeronaveId" required>
               <option value="">-- Selecione --</option>
-              {mockAeronaves.map(a => <option key={a.codigo} value={a.codigo}>{a.modelo} ({a.codigo})</option>)}
+              {aeronaves.map(a => <option key={a.codigo} value={a.codigo}>{a.modelo} ({a.codigo})</option>)}
             </select>
           </div>
           <div className="form-group">

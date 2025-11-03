@@ -1,9 +1,18 @@
 import { useState } from 'react';
-import { mockPecas, mockAeronaves, tipoPeca, statusPeca, type Peca } from './mockData';
+import { useOutletContext } from 'react-router-dom';
+import { tipoPeca, statusPeca, type Peca, type Aeronave, type Etapa } from './mockData';
 import Modal from './Modal';
 
+interface OutletContextType {
+  pecas: Peca[];
+  setPecas: React.Dispatch<React.SetStateAction<Peca[]>>;
+  aeronaves: Aeronave[];
+  etapas: Etapa[];
+  setEtapas: React.Dispatch<React.SetStateAction<Etapa[]>>;
+}
+
 function Pecas() {
-  const [pecas, setPecas] = useState<Peca[]>(mockPecas);
+  const { pecas, setPecas, aeronaves } = useOutletContext<OutletContextType>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPeca, setEditingPeca] = useState<Peca | null>(null);
 
@@ -13,7 +22,7 @@ function Pecas() {
     tipo: tipoPeca.Nacional,
     fornecedor: '',
     status: statusPeca.Producao,
-    aeronaveId: mockAeronaves[0]?.codigo || 0,
+    aeronaveId: aeronaves[0]?.codigo || 0,
   };
   const [currentPeca, setCurrentPeca] = useState<Peca>(initialPecaState);
 
@@ -94,8 +103,8 @@ function Pecas() {
           </div>
           <div className="form-group">
             <label htmlFor="aeronaveId">Aeronave Associada</label>
-            <select id="aeronaveId" name="aeronaveId" value={currentPeca.aeronaveId} onChange={handleInputChange}>
-              {mockAeronaves.map(a => <option key={a.codigo} value={a.codigo}>{a.modelo} ({a.codigo})</option>)}
+            <select id="aeronaveId" name="aeronaveId" value={currentPeca.aeronaveId} onChange={handleInputChange} disabled={aeronaves.length === 0}>
+              {aeronaves.map(a => <option key={a.codigo} value={a.codigo}>{a.modelo} ({a.codigo})</option>)}
             </select>
           </div>
           <button type="submit" className="btn-primary">Salvar</button>

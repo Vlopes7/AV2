@@ -1,10 +1,11 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useOutletContext } from "react-router-dom";
 import Modal from "./Modal";
 
 import {
-  mockAeronaves,
   tipoAeronave,
   type Aeronave,
+  type Peca,
 } from "./mockData";
 
 const estadoInicialForm: Omit<Aeronave, 'codigo'> = {
@@ -14,8 +15,16 @@ const estadoInicialForm: Omit<Aeronave, 'codigo'> = {
   autonomia: 0,
 };
 
+interface OutletContextType {
+  aeronaves: Aeronave[];
+  setAeronaves: React.Dispatch<React.SetStateAction<Aeronave[]>>;
+  pecas: Peca[];
+  // Adicione outros estados do contexto se necessário
+}
+
 export function Aircrafts() {
-  const [aeronaves, setAeronaves] = useState<Aeronave[]>(mockAeronaves);
+  const { aeronaves, setAeronaves } = useOutletContext<OutletContextType>();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [novaAeronave, setNovaAeronave] = useState(estadoInicialForm);
 
