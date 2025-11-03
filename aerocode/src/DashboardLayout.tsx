@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import './Dashboard.css';
+import './css/Dashboard.css';
 
 function DashboardLayout() {
   return (
